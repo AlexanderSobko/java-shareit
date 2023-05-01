@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -9,6 +10,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,9 +28,8 @@ public class ItemServiceImp implements ItemService {
             return List.of();
         }
         text = "%" + text + "%";
-        return itemRepo.findByNameLikeOrDescriptionLikeAllIgnoreCaseAndAvailableTrue(text, text).stream()
-                .map(ItemDto::mapToItemDto)
-                .collect(Collectors.toList());
+        List<Item> items = itemRepo.findAll(withNameOrDescriptionSource(text));
+        return items.stream().map(ItemDto::mapToItemDto).collect(Collectors.toList());
     }
 
     @Override
@@ -74,6 +75,15 @@ public class ItemServiceImp implements ItemService {
         if (!userRepo.existsById(userId)) {
             throw new NotFoundException(String.format("Пользователь с id(%s) не найден!", userId));
         }
+    }
+
+    private Specification<Item> withNameOrDescriptionSource(String source) {
+        return (root, query, cb) -> {
+            Predicate byName = cb.like(cb.upper(root.get("name")), source.toUpperCase());
+            Predicate byDescription = cb.like(cb.upper(root.get("description")), source.toUpperCase());
+            Predicate byAvailable = cb.isTrue(root.get("available"));
+            return cb.and(cb.or(byName, byDescription), byAvailable);
+        };
     }
 
 }

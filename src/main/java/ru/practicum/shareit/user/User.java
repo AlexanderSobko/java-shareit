@@ -1,18 +1,14 @@
 package ru.practicum.shareit.user;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "users")
@@ -25,11 +21,9 @@ public class User {
     String name;
     @Column(unique = true)
     String email;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    List<Item> items;
 
     public static User mapToUser(UserDto userDto) {
-        return new User(userDto.getId(), userDto.getName(), userDto.getEmail(), new ArrayList<>());
+        return new User(userDto.getId(), userDto.getName(), userDto.getEmail());
     }
 
 }

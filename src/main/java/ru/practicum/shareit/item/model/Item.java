@@ -7,8 +7,10 @@ import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "items")
@@ -21,7 +23,7 @@ public class Item {
     String name;
     String description;
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     private User user;
     @Column(name = "user_id", nullable = false)
     int userId;
