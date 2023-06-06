@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @ControllerAdvice
@@ -43,6 +42,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 headers, HttpStatus.NOT_FOUND, request);
     }
 
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException exception,
+                                                                    WebRequest request) {
+        return handleExceptionInternal(exception, Map.of("error", "Unknown state: UNSUPPORTED_STATUS"),
+                headers, INTERNAL_SERVER_ERROR, request);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception,
                                                                   HttpHeaders headers,
@@ -55,6 +61,6 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
         log.warn(String.join("/n", errorList));
-        return handleExceptionInternal(exception, errorList, this.headers, BAD_REQUEST, request);
+        return handleExceptionInternal(exception, errorList, RestResponseEntityExceptionHandler.headers, BAD_REQUEST, request);
     }
 }

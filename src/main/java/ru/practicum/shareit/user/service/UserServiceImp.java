@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.AlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserCreationDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -20,23 +21,22 @@ public class UserServiceImp implements UserService {
     private final UserRepository userRepo;
 
     @Override
-    public UserDto saveUser(UserDto userDto) {
-        validateEmail(userDto.getEmail());
-        User result = userRepo.save(User.mapToUser(userDto));
+    public UserDto saveUser(UserCreationDto userCreationDto) {
+//        validateEmail(userCreationDto.getEmail());
+        User result = userRepo.save(User.mapToUser(userCreationDto));
         log.info("Данные пользователя с id({}) успешно сохранены. {}", result.getId(), result);
         return UserDto.mapToUserDto(result);
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto) {
-        User user = userRepo.findById(userDto.getId())
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id(%s) не найден!", userDto.getId())));
-        if (userDto.getName() != null) {
-            user.setName(userDto.getName());
+    public UserDto updateUser(UserCreationDto userCreationDto) {
+        User user = getUser(userCreationDto.getId());
+        if (userCreationDto.getName() != null) {
+            user.setName(userCreationDto.getName());
         }
-        if (userDto.getEmail() != null && !userDto.getEmail().equals(user.getEmail())) {
-            validateEmail(userDto.getEmail());
-            user.setEmail(userDto.getEmail());
+        if (userCreationDto.getEmail() != null && !userCreationDto.getEmail().equals(user.getEmail())) {
+            validateEmail(userCreationDto.getEmail());
+            user.setEmail(userCreationDto.getEmail());
         }
         User result = userRepo.save(user);
         log.info("Данные пользователя с id({}) успешно обновлены. {}", result.getId(), result);
@@ -44,14 +44,13 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public UserDto getUser(Integer id) {
-        User result = userRepo.findById(id)
+    public User getUser(Long id) {
+        return userRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id(%s) не найден!", id)));
-        return UserDto.mapToUserDto(result);
     }
 
     @Override
-    public String deleteUser(Integer id) {
+    public String deleteUser(Long id) {
         User user = userRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id(%s) не найден!", id)));
         userRepo.deleteById(id);
