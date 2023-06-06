@@ -13,17 +13,17 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Builder
 @ToString
-public class UserDto {
+public class UserCreationDto {
 
-    int id;
+    long id;
     @NotBlank(message = "Имя пользователя не может быть пустым!")
     String name;
     @Email(regexp = "\\w+@\\w+\\.\\w+", message = "Электронная почта должна быть валидной!")
     @NotBlank(message = "Электронная почта не может быть пустой!")
     String email;
 
-    public static UserDto mapToUserDto(User user) {
-        return UserDto.builder()
+    public static UserCreationDto mapToUserDto(User user) {
+        return UserCreationDto.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())

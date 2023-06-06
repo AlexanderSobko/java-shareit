@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.repository;
+package ru.practicum.shareit.item;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ItemRepository extends JpaRepository<Item, Integer>, JpaSpecificationExecutor<Item> {
+public interface ItemRepository extends JpaRepository<Item, Long>, JpaSpecificationExecutor<Item> {
 
-    List<Item> findByUserId(Integer userId);
+    List<Item> findByOwnerId(Long ownerId);
 
-    Optional<Item> findByIdAndUserId(int id, int userId);
+    Optional<Item> findByIdAndOwnerId(long id, long ownerId);
+
 }
