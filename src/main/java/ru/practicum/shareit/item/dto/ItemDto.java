@@ -2,10 +2,13 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.booking.dto.BookingSimpleDto;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -14,25 +17,42 @@ import javax.validation.constraints.NotNull;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemDto {
 
-    int id;
-    @NotBlank(message = "Имя не может быть пустым!")
+    long id;
     String name;
-    @NotBlank(message = "Описанее не может быть пустым!")
     String description;
-    int owner;
+    UserDto owner;
     int rentCount;
-    @NotNull(message = "Информация о наличии предмета не может быть пустой!")
-    Boolean available;
-
+    boolean available;
+    BookingSimpleDto nextBooking;
+    BookingSimpleDto lastBooking;
+    List<CommentDto> comments;
 
     public static ItemDto mapToItemDto(Item item) {
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .owner(item.getUserId())
+                .owner(UserDto.mapToUserDto(item.getOwner()))
+                .rentCount(item.getRentCount())
                 .available(item.isAvailable())
+                .lastBooking(item.getLastBooking())
+                .nextBooking(item.getNextBooking())
                 .build();
     }
 
+    public static ItemDto mapToItemDtoWithComments(Item item) {
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .owner(UserDto.mapToUserDto(item.getOwner()))
+                .rentCount(item.getRentCount())
+                .available(item.isAvailable())
+                .lastBooking(item.getLastBooking())
+                .nextBooking(item.getNextBooking())
+                .comments(item.getComments() == null ?
+                        List.of()
+                        : item.getComments().stream().map(CommentDto::mapToCommentDto).collect(Collectors.toList()))
+                .build();
+    }
 }

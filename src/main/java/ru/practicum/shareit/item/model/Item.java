@@ -2,41 +2,48 @@ package ru.practicum.shareit.item.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.booking.dto.BookingSimpleDto;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.dto.ItemCreationDto;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
+@Entity
 @Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "items")
+@Table(name = "items")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    long id;
     String name;
     String description;
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    private User user;
-    @Column(name = "user_id", nullable = false)
-    int userId;
+    @JoinColumn(name = "owner_id")
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    User owner;
     int rentCount;
     boolean available;
+    @Transient
+    BookingSimpleDto nextBooking;
+    @Transient
+    BookingSimpleDto lastBooking;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item", cascade = CascadeType.REMOVE)
+    List<Comment> comments;
 
-    public static Item mapToItem(ItemDto itemDto) {
+
+    public static Item mapToItem(ItemCreationDto itemCreationDto) {
         return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .userId(itemDto.getOwner())
-                .available(itemDto.getAvailable())
+                .name(itemCreationDto.getName())
+                .description(itemCreationDto.getDescription())
+                .available(itemCreationDto.getAvailable())
                 .build();
     }
 

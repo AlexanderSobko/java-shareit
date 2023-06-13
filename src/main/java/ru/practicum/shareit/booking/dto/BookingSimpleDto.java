@@ -4,8 +4,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
@@ -14,22 +12,22 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookingDto {
+public class BookingSimpleDto {
 
     long id;
     LocalDateTime start;
     LocalDateTime end;
-    User booker;
-    Item item;
+    long bookerId;
+    long itemId;
     BookingState status;
 
-    public static BookingDto mapToBookingDto(Booking booking) {
-        return BookingDto.builder()
+    public static BookingSimpleDto mapToBookingSimpleDto(Booking booking) {
+        return BookingSimpleDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .item(booking.getItem())
-                .booker(booking.getBooker())
+                .itemId(booking.getItem().getId())
+                .bookerId(booking.getBooker().getId())
                 .status(booking.getStatus())
                 .build();
     }
