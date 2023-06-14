@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.comment.dto.CommentCreationDto;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
@@ -10,11 +11,14 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/items")
+@RequestMapping(path = "/items", produces = "application/hal+json;charset=utf8")
 public class ItemController {
 
     private final ItemService service;
@@ -39,13 +43,19 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemDto>> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return ResponseEntity.ok(service.getItems(userId));
+    public ResponseEntity<List<ItemDto>> getItems(
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int from,
+            @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
+        return ResponseEntity.ok(service.getItems(userId, from, size));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ItemDto>> searchItems(@RequestParam("text") String text) {
-        return ResponseEntity.ok(service.searchItems(text));
+    public ResponseEntity<List<ItemDto>> searchItems(
+            @RequestParam("text") String text,
+            @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int from,
+            @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
+        return ResponseEntity.ok(service.searchItems(text, from, size));
     }
 
     @PostMapping("/{itemId}/comment")

@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -43,7 +45,7 @@ public class BookingService {
         Booking booking = Booking.mapToBooking(dto);
         Item item = itemService.getItem(dto.getItemId(), bookerId);
         if (item.getOwner().getId() == bookerId) {
-            throw new NotFoundException("Пользователь с id(%d) являтся владелцем вещи!");
+            throw new NotFoundException(String.format("Пользователь с id(%d) являтся владелцем вещи!", bookerId));
         }
         booking.setItem(item);
         validateItem(item);
@@ -69,7 +71,7 @@ public class BookingService {
         }
         if (booking.getStart().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    String.format("Бронь с id(%d) уже началас!", bookingId));
+                    String.format("Бронь с id(%d) уже началась!", bookingId));
         }
         validateTime(booking);
         BookingState bookingState = isApproved ? BookingState.APPROVED : BookingState.REJECTED;
@@ -91,23 +93,29 @@ public class BookingService {
         return booking;
     }
 
-    public List<BookingDto> getBookings(long userId, String state, boolean isOwner) {
+    public List<BookingDto> getBookings(long userId, String state, boolean isOwner, int from, int size) {
         userService.getUser(userId);
         BookingDtoState status = BookingDtoState.valueOf(state);
-        Specification<Booking> specification = predicate(status, userId, isOwner);
+        Specification<Booking> specification = getPredicate(status, userId, isOwner);
         Sort sortByDateAsc = Sort.by(Sort.Order.desc("start"));
-        return bookingRepo.findAll(specification, sortByDateAsc).stream()
+        Pageable pageable = new PageRequest(0, size, sortByDateAsc) {
+            @Override
+            public long getOffset() {
+                return from;
+            }
+        };
+        return bookingRepo.findAll(specification, pageable).stream()
                 .map(BookingDto::mapToBookingDto)
                 .collect(Collectors.toList());
     }
 
     private void validateItem(Item item) {
         if (!item.isAvailable()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Вещь с id(%d) не доступена!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Вещь с id(%d) не доступна!", item.getId()));
         }
     }
 
-    private Specification<Booking> predicate(BookingDtoState state, long userId, boolean isOwner) {
+    private Specification<Booking> getPredicate(BookingDtoState state, long userId, boolean isOwner) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (isOwner) {

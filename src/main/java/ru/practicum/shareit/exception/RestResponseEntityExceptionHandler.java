@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
@@ -49,6 +51,14 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 headers, INTERNAL_SERVER_ERROR, request);
     }
 
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    protected ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException exception,
+                                                                        WebRequest request) {
+        log.warn(exception.getMessage());
+        return handleExceptionInternal(exception, Map.of("message", exception.getMessage()),
+                headers, BAD_REQUEST, request);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception,
                                                                   HttpHeaders headers,
@@ -59,6 +69,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .getFieldErrors()
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .filter(Objects::nonNull)
+                .sorted(String::compareTo)
                 .collect(Collectors.toList());
         log.warn(String.join("/n", errorList));
         return handleExceptionInternal(exception, errorList, RestResponseEntityExceptionHandler.headers, BAD_REQUEST, request);

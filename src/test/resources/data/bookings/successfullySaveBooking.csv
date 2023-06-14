@@ -1,0 +1,1 @@
+101|103|1|10|{"id":1,"start":"%s","end":"%s","booker":{"id":101,"name":"user1","email":"user1@user.com"},"item":{"id":103,"name":"name3","description":"description3","owner":{"id":102,"name":"user2","email":"user2@user.com"},"itemRequest":null,"rentCount":0,"available":true,"nextBooking":null,"lastBooking":null,"comments":[]},"status":"WAITING"}

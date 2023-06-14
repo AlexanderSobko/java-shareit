@@ -1,9 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-
 public enum BookingDtoState {
     ALL,
     CURRENT,
@@ -12,7 +8,4 @@ public enum BookingDtoState {
     WAITING,
     REJECTED;
 
-    public boolean contains(String state) {
-        return Stream.of(BookingDtoState.values()).map(BookingDtoState::name).collect(Collectors.toList()).contains(state);
-    }
 }

@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.user.User;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -20,13 +19,5 @@ public class UserCreationDto {
     @Email(regexp = "\\w+@\\w+\\.\\w+", message = "Электронная почта должна быть валидной!")
     @NotBlank(message = "Электронная почта не может быть пустой!")
     String email;
-
-    public static UserCreationDto mapToUserDto(User user) {
-        return UserCreationDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
-    }
 
 }

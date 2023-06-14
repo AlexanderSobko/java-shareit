@@ -22,6 +22,7 @@ public class ItemDto {
     String description;
     UserDto owner;
     int rentCount;
+    Long requestId;
     boolean available;
     BookingSimpleDto nextBooking;
     BookingSimpleDto lastBooking;
@@ -34,6 +35,7 @@ public class ItemDto {
                 .description(item.getDescription())
                 .owner(UserDto.mapToUserDto(item.getOwner()))
                 .rentCount(item.getRentCount())
+                .requestId(item.getItemRequest() != null ? item.getItemRequest().getId() : null)
                 .available(item.isAvailable())
                 .lastBooking(item.getLastBooking())
                 .nextBooking(item.getNextBooking())
@@ -47,6 +49,7 @@ public class ItemDto {
                 .description(item.getDescription())
                 .owner(UserDto.mapToUserDto(item.getOwner()))
                 .rentCount(item.getRentCount())
+                .requestId(item.getItemRequest() != null ? item.getItemRequest().getId() : null)
                 .available(item.isAvailable())
                 .lastBooking(item.getLastBooking())
                 .nextBooking(item.getNextBooking())
