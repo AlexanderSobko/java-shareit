@@ -21,5 +21,6 @@ public class ItemCreationDto {
     String description;
     @NotNull(message = "Информация о наличии предмета не может быть пустой!")
     Boolean available;
+    Long requestId;
 
 }

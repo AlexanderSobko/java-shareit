@@ -23,7 +23,7 @@ public class BookingCreationDto {
     @FutureOrPresent(message = "Время окончания бронирования не может быть в прошлом!")
     LocalDateTime end;
     long userId;
-    @Min(value = 1, message = "")
+    @Min(value = 1, message = "Id вещи не может быть отрицательным!")
     long itemId;
 
     @AssertTrue(message = "Время окончания бронирования не может быть раньше или равно времени начала бронирования!")

@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.BookingSimpleDto;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.dto.ItemCreationDto;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
@@ -29,6 +30,9 @@ public class Item {
     @JoinColumn(name = "owner_id")
     @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     User owner;
+    @JoinColumn(name = "request_id")
+    @ManyToOne(targetEntity = ItemRequest.class, fetch = FetchType.EAGER)
+    ItemRequest itemRequest;
     int rentCount;
     boolean available;
     @Transient

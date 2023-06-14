@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/users")
+@RequestMapping(path = "/users", produces = "application/hal+json;charset=utf8")
 public class UserController {
 
     private final UserService userService;

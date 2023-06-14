@@ -4,6 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,8 @@ import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemCreationDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -42,25 +47,42 @@ public class ItemServiceImp implements ItemService {
 
     ItemRepository itemRepo;
     UserService userService;
+    ItemRequestService itemRequestService;
     BookingRepository bookingRepo;
     CommentRepository commentRepo;
 
     @Override
-    public List<ItemDto> searchItems(String text) {
+    public List<ItemDto> searchItems(String text, int from, int size) {
         if (text.isBlank()) {
             return List.of();
         }
+        Pageable pageable = new PageRequest(0, size, Sort.unsorted()) {
+            @Override
+            public long getOffset() {
+                return from;
+            }
+        };
         text = "%" + text + "%";
-        List<Item> items = itemRepo.findAll(withNameOrDescriptionSource(text));
-        return items.stream().map(ItemDto::mapToItemDto).collect(Collectors.toList());
+        Page<Item> items = itemRepo.findAll(withNameOrDescriptionSource(text), pageable);
+        return items.stream()
+                .map(ItemDto::mapToItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> getItems(long userId) {
-        List<Item> items = itemRepo.findByOwner(userId);
+    public List<ItemDto> getItems(long userId, int from, int size) {
+        Pageable pageable = new PageRequest(0, size, Sort.unsorted()) {
+            @Override
+            public long getOffset() {
+                return from;
+            }
+        };
+        List<Item> items = itemRepo.findByOwner(userId, pageable);
         if (!items.isEmpty()) {
             setNextAndLastBookings(items);
-            return items.stream().map(ItemDto::mapToItemDtoWithComments).collect(Collectors.toList());
+            return items.stream()
+                    .map(ItemDto::mapToItemDtoWithComments)
+                    .collect(Collectors.toList());
         } else {
             return List.of();
         }
@@ -73,7 +95,6 @@ public class ItemServiceImp implements ItemService {
         if (userId == item.getOwner().getId()) {
             setNextAndLastBookings(List.of(item));
         }
-        item.getComments().size();
         return item;
     }
 
@@ -82,14 +103,23 @@ public class ItemServiceImp implements ItemService {
         Item item = itemRepo.findByIdAndOwnerId(id, ownerId)
                 .orElseThrow(() -> new NotFoundException(String.format(
                         "Вещь с id(%d) у пользоватедя с id(%d) не найдена!", id, ownerId)));
-        if (dto.getName() != null && !item.getName().equals(dto.getName())) {
+        if (dto.getName() != null
+                && !dto.getName().isBlank()
+                && !item.getName().equals(dto.getName())) {
             item.setName(dto.getName());
         }
-        if (dto.getDescription() != null && !item.getDescription().equals(dto.getDescription())) {
+        if (dto.getDescription() != null
+                && !dto.getDescription().isBlank()
+                && !item.getDescription().equals(dto.getDescription())) {
             item.setDescription(dto.getDescription());
         }
         if (dto.getAvailable() != null && item.isAvailable() != dto.getAvailable()) {
             item.setAvailable(dto.getAvailable());
+        }
+        if (dto.getRequestId() != null
+                && (item.getItemRequest() == null || dto.getRequestId() != item.getItemRequest().getId())) {
+            ItemRequest itemRequest = itemRequestService.getById(dto.getRequestId(), ownerId);
+            item.setItemRequest(itemRequest);
         }
         ItemDto result = ItemDto.mapToItemDto(itemRepo.save(item));
         log.info("Данные предмета с id({}) успешно обновлены. {}", item.getId(), dto);
@@ -100,6 +130,10 @@ public class ItemServiceImp implements ItemService {
     public ItemDto saveItem(ItemCreationDto dto, long ownerId) {
         User owner = userService.getUser(ownerId);
         Item item = Item.mapToItem(dto);
+        if (dto.getRequestId() != null) {
+            ItemRequest itemRequest = itemRequestService.getById(dto.getRequestId(), ownerId);
+            item.setItemRequest(itemRequest);
+        }
         item.setOwner(owner);
         item.setAvailable(true);
         item = itemRepo.save(item);
@@ -138,10 +172,13 @@ public class ItemServiceImp implements ItemService {
 
     private Specification<Item> withNameOrDescriptionSource(String source) {
         return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
             Predicate byName = cb.like(cb.upper(root.get("name")), source.toUpperCase());
             Predicate byDescription = cb.like(cb.upper(root.get("description")), source.toUpperCase());
+            predicates.add(cb.or(byName, byDescription));
             Predicate byAvailable = cb.isTrue(root.get("available"));
-            return cb.and(cb.or(byName, byDescription), byAvailable);
+            predicates.add(byAvailable);
+            return cb.and(predicates.toArray(Predicate[]::new));
         };
     }
 
