@@ -1,0 +1,3 @@
+|400|{"name": "Дрель","description": "Простая дрель","available": true}|
+999|404|{"name": "Дрель","description": "Простая дрель","available": true}|{"message":"Пользователь с id(999) не найден!"}
+101|404|{"name": "Дрель","description": "Простая дрель","available": true, "requestId": "999"}|{"message":"Запрос с таким id(999) не существует!"}
