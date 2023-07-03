@@ -1,0 +1,2 @@
+104|200|[{"id":104,"name":"name4","description":"description4","owner":{"id":104,"name":"user4","email":"user4@user.com"},"rentCount":0,"requestId":null,"available":true,"nextBooking":null,"lastBooking":null,"comments":[]},{"id":105,"name":"name5","description":"description5","owner":{"id":104,"name":"user4","email":"user4@user.com"},"rentCount":0,"requestId":null,"available":false,"nextBooking":null,"lastBooking":null,"comments":[]}]
+103|200|[]
