@@ -163,7 +163,7 @@ public class ItemServiceImp implements ItemService {
             Predicate byBookerId = cb.equal(cb.upper(root.get("booker")), userId);
             Predicate byItemId = cb.equal(cb.upper(root.get("item")), itemId);
             Predicate byState = cb.equal(root.get("status"), BookingState.APPROVED);
-            Predicate byStart = cb.lessThan(root.get("end"), cb.currentTimestamp());
+            Predicate byStart = cb.lessThan(root.get("end"), LocalDateTime.now());
             return cb.and(byBookerId, byState, byStart, byItemId);
         };
     }

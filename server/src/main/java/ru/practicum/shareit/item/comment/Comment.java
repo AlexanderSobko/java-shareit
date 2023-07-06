@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
@@ -14,7 +13,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
 @Entity(name = "comments")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Comment {
@@ -34,4 +32,15 @@ public class Comment {
     String authorName;
     LocalDateTime created;
 
+    public String toString() {
+        return "Comment(id=" + this.getId() +
+                ", text=" + this.getText() +
+                ", user=" + this.getUser() +
+                ", item=" + "Item(id=" + this.getId() +
+                ", name=" + item.getName() +
+                ", description=" + item.getDescription() +
+                ", owner=" + item.getOwner() +
+                ", authorName=" + this.getAuthorName() +
+                ", created=" + this.getCreated() + ")";
+    }
 }
