@@ -160,8 +160,8 @@ public class ItemServiceImp implements ItemService {
 
     private Specification<Booking> withBookingCompleteByUserSource(long userId, long itemId) {
         return (root, query, cb) -> {
-            Predicate byBookerId = cb.equal(cb.upper(root.get("booker")), userId);
-            Predicate byItemId = cb.equal(cb.upper(root.get("item")), itemId);
+            Predicate byBookerId = cb.equal(root.get("booker"), userId);
+            Predicate byItemId = cb.equal(root.get("item"), itemId);
             Predicate byState = cb.equal(root.get("status"), BookingState.APPROVED);
             Predicate byStart = cb.lessThan(root.get("end"), LocalDateTime.now());
             return cb.and(byBookerId, byState, byStart, byItemId);
