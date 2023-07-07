@@ -1,0 +1,2 @@
+/101|101|200|{"id":101,"name":"name1","description":"description1","owner":{"id":101,"name":"user1","email":"user1@user.com"},"rentCount":0,"requestId":null,"available":true,"nextBooking":null,"lastBooking":null,"comments":[]}
+/102|101|200|{"id":102,"name":"name2","description":"description2","owner":{"id":102,"name":"user2","email":"user2@user.com"},"rentCount":0,"requestId":null,"available":true,"nextBooking":null,"lastBooking":null,"comments":[]}

@@ -1,0 +1,3 @@
+101|{"name": "updateName"}|{"id":101,"name":"updateName","email":"user1@user.com"}
+101|{"email": "updateEmail1@user.com"}|{"id":101,"name":"user1","email":"updateEmail1@user.com"}
+102|{"name": "updateName2", "email": "updateEmail2@user.com"}|{"id":102,"name":"updateName2","email":"updateEmail2@user.com"}

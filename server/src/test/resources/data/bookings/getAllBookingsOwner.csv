@@ -1,0 +1,6 @@
+/owner?state=ALL|104|1
+/owner?state=CURRENT|103|1
+/owner?state=PAST|102|2
+/owner?state=FUTURE|104|1
+/owner?state=WAITING|104|1
+/owner?state=REJECTED|102|1
